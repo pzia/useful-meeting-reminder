@@ -99,3 +99,9 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+#specific
+umr.ini
+umr.log
+store/
+.vscode/

@@ -1,0 +1,23 @@
+[Path]
+tmp = tmp
+store = store
+
+[Ical]
+path = ../file.ics
+
+[Mail]
+serverssl = pop.gmail.com
+serversmtp = smtp.gmail.com
+portssl = 995
+portsmtp = 465 
+username = assistant.foobar@gmail.com
+password = foobar
+sender = %(username)s
+sendername = Assistant
+reminded = foobar@gmail.com
+
+[Files]
+log = umr.log
+
+[Calendars]
+url =
