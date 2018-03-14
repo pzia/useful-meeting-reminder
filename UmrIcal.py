@@ -254,6 +254,10 @@ def remind_events(events):
             reminded.append(data)
     return(reminded)
 
+def send_reminders():
+    events = get_events_from_store()
+    remind_events(events)
+
 def print_events(events):
     for e in events :
         print(json.dumps(e, indent=2))
