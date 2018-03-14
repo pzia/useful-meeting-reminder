@@ -1,16 +1,24 @@
-TODO :
-* Blacklisting
+#TODO :
+* Focus : Blacklisting
     * by title (regexp)
     * by uid
 
-Later :
-* check_mail in status.json to ajust frequency 
+#IDEAS
+* Architecture : check_mail in status.json to ajust frequency 
   * once per hour
   * every 2 minute if activity during last fifteen minutes
-* cleverer loading of ics (mtime change of the file)
-* better handling around meeting time
-* dry_run mode (see keep_my_datas)
-* more conf
-* Modular storage (standardfile, sqlite, reddis)
-* append file to meeting
+* Architecture : cleverer loading of ics (mtime change of the file)
+* Focus : better handling around meeting time
+* Testability : dry_run mode (see keep_my_datas)
+* Architecture : more conf
+* Architecture : Modular storage (standardfile, sqlite, reddis)
+* Feature : append file to meeting
+* Feature : multiple calendars ?
+* Focus : reply with html from markdown
+* Focus : append (and not only replace)
+
+#Elsewhere :
+* Efficiency : match meetings with work inbox
+  * detect event in mails
+  * propose for inclusion in calendar
 
