@@ -204,10 +204,11 @@ def get_events_from_store():
     return(events)
 
 def remove_event_from_store(uid):
+    """Delete event from store"""
     fpath = get_store_pathname(uid)
     try:
-        send_event_from_uid(uid, "REMOVED")
-        os.remove(fpath)
+        send_event_from_uid(uid, "REMOVED") #send removal
+        os.remove(fpath) #FIXME : Shall copy in backup dir ?
         logging.debug("%s removed", uid)
     except :
         pass
@@ -219,22 +220,17 @@ def remind_event_from_store(uid):
     return(update_store_with_data(data))
 
 def to_be_reminded(data):
-    """check if event has to be reminded"""
+    """Check if event has to be reminded"""
     assert 'dtstart' in data
-
-    if 'updated' in data :
-        updated = data['updated']
-    else :
-        updated = 0
-    if 'reminded' in data :
-        reminded = data['reminded']
-    else :
-        reminded = 0
+    updated = data.get('updated', 0)
+    reminded = data.get('reminded', 0)
+    #rule of thumb : remind if half way between last update and the meeting
     halfway = float(max(updated, reminded) + data['dtstart'])/2.0
     now = ts_from_datetime()
     return(now > halfway and now < data['dtstart'])
 
 def to_be_removed(data, oldest = 7):
+    #FIXME : useless ?
     """Check if event has to be removed"""
     if 'dtstart' not in data :
         return True
@@ -242,10 +238,10 @@ def to_be_removed(data, oldest = 7):
     return(data['dtstart'] < old)
 
 def purge_events(events):
+    #FIXME : useless ?
     """Purge events if necessary"""
     logging.info("Purge events")
     purged = []
-
     for uid in events :
         data = events[uid]
         if to_be_removed(data):
@@ -257,10 +253,9 @@ def remind_events(events):
     """Remind events if necessary"""
     logging.info('Remind events')
     reminded = []
-
-    for uid in events :
+    for uid in events : #for each event
         data = events[uid]
-        if to_be_reminded(data):
+        if to_be_reminded(data): #something to do
             remind_event_from_store(uid)
             reminded.append(data)
     return(reminded)
@@ -271,5 +266,3 @@ def print_events(events):
 
 if __name__ == '__main__':
     print("Test UmrIcal")
-    #update_store_from_ical()
-    
