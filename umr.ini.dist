@@ -1,5 +1,4 @@
 [Path]
-tmp = tmp
 store = store
 
 [Ical]
@@ -18,6 +17,3 @@ reminded = foobar@gmail.com
 
 [Files]
 log = umr.log
-
-[Calendars]
-url =

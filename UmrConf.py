@@ -7,7 +7,7 @@ import configparser
 import sys
 import os.path
 
-#logging
+#set logging
 import logging
 logging.basicConfig(filename=os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'umr.log'),level=logging.DEBUG)
 

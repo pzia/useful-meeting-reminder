@@ -41,21 +41,22 @@ def get_events(pathname, maxfuture = 60, limit = 200):
             break #enough !
         if component.name == "VEVENT": #OK, this is a meeting
             dtstart = component.get('dtstart') #start of event
-
             dt = dtstart.dt.replace(tzinfo=timezone.utc)
+
             if component.has_key('rrule'): #event with repeat
                 rule = component.get('rrule')
                 until = rule['UNTIL'][0]
                 ruleset = rrule.rruleset()
                 ruleset.rrule(rrule.rrulestr(rule.to_ical().decode('UTF-8'), dtstart=dtstart.dt))
                 exdate = component.get('EXDATE')
-                if exdate is not None :
+                if exdate is not None : #exclude dates
                     for edate in exdate :
                         ruleset.exdate(edate.dts[0].dt)
                 target = None
-                for devent in ruleset:
+                for devent in ruleset: #for each date
                     if devent > now and (target is None or devent < target):
-                        target = devent
+                        target = devent #this one is the nearest in the future
+                        #FIXME : what if we want to keep recurreing event ?
                 if target is not None :
                     del(component['dtstart'])
                     component.add('dtstart', target)#] = vDatetime(target).to_ical()
@@ -66,7 +67,6 @@ def get_events(pathname, maxfuture = 60, limit = 200):
                     listevents.append(component)
                     logging.debug("Keeping %s, %s", dt, component.get('summary'))
                     limit -= 1
-
     g.close()
     return(listevents)
 
@@ -75,35 +75,31 @@ def body_event_from_data(data):
     #FIXME : eventually, do it in html
     assert 'dtstart' in data
     assert 'summary' in data
-    assert 'description' in data
-    #assert 'meetingplan' in data
-
     bodylist = ["%s" % datetime.utcfromtimestamp(int(data['dtstart'])).strftime('%d-%m-%Y à %H:%M'), data['summary']]
     if 'location' in data and data['location'] != "" :
         bodylist.append(data['location'])
     bodylist.append(body_plan_from_data(data))
-
     body = "\n".join(bodylist)
     return(body)
 
 def body_plan_from_data(data) :
     """Make plan text from data"""
-    plan = "" #FIXME : Default plan ?
     if "meetingplan" in data and data['meetingplan'] != "" :
         plan = data['meetingplan']
     elif 'description' in data and data['description'] != "" :
         plan = data['description']
+    else :
+        plan = "GOAL:\nTODO:\n" #FIXME : Default plan in config ?
     return("===\n%s\n===\n" % plan)
 
 def subject_from_data(data):
     """Make Title from dict"""
     dtiso = datetime.utcfromtimestamp(int(data['dtstart'])).strftime('%d-%m-%Y à %H:%M')
     #FIXME : eventually, take it from config file
-    return("[UMR] %s - %s - UMR/%s" % (data['summary'], dtiso, data['uid']) )
+    return("%s - %s - UMR/%s" % (data['summary'], dtiso, data['uid']) )
 
 def send_event_from_uid(uid, prefix = None):
     """Send mail for uid with data from store"""
-    #FIXME : Should connect once for all events
     data = get_data_from_store(uid) #get data
     logging.debug("Send event for %s" % uid)
     subject = subject_from_data(data) #subject
@@ -124,10 +120,11 @@ def make_data_from_event(event):
     ret['summary'] = event.get('summary').strip()
     ret['location'] = event.get('location').strip()
     ret['description'] = event.get('description').strip()
-    ret['uid'] = event.get('uid')
+    ret['uid'] = event.get('uid').strip()
     ret['dtstart'] = ts_from_datetime(event.get('dtstart').dt)
     #FIXME : Duration ?
-    #ret['dtend'] = get_epoc_from_datetime(component.get('dtend').dt)
+    #FIXME : RRULE RECUR ?
+    #FIXME : DT END
     return(ret)
 
 def get_data_from_store(uid):
@@ -136,13 +133,14 @@ def get_data_from_store(uid):
     if os.path.exists(fpath) : #already known
         return(get_data_from_file(fpath))
     else :
+        #FIXME : should be NONE ?
         return({})
 
 def get_data_from_file(fpath):
     """Read json file"""
     with open(fpath, 'r') as h : 
         data = json.load(h) #load existing datas
-        data['read'] = datetime.now().timestamp()
+        data['read'] = ts_from_datetime()
         logging.debug("Existing datas for uid %s loaded from %s", data['uid'], fpath)
         return(data)
 
@@ -152,10 +150,10 @@ def get_store_pathname(uid):
 
 def write_store_with_data(data):
     """Write meeting store entry from data dict"""
-    assert 'dtstart' in data
-    assert 'uid' in data
+    assert 'dtstart' in data #mandatory
+    assert 'uid' in data #mandatory
     fpath = get_store_pathname(data['uid'])
-    data['written'] = datetime.now().timestamp()
+    data['written'] = ts_from_datetime()
     with open(fpath, 'w') as h:
         json.dump(data, h, indent=2)
         logging.debug("Writing %s for uid %s", fpath, data['uid'])
@@ -169,10 +167,6 @@ def update_store_with_data(data):
     ret = write_store_with_data(ret)
     return(ret)
 
-def update_store_from_event(event):
-    """Update meeting store from icalendar event component"""
-    return(update_store_with_data(make_data_from_event(event)))
-
 def update_store_from_ical():
     """Update meeting store from ical source"""
     icspath = gconfig.get('Ical', 'path')
@@ -180,13 +174,14 @@ def update_store_from_ical():
     levents = get_events(icspath, 90) #get events #FIXME : Conf ?
     counter = 0
     uidlist = []
-    for e in levents :
-        update_store_from_event(e)
-        uidlist.append(e.get('uid'))
+    for e in levents : #for each event
+        data = make_data_from_event(e)
+        update_store_with_data(data) #update
+        uidlist.append(data['uid']) #prepare removal
         counter += 1
     for uid in get_events_from_store():
-        if uid not in uidlist :
-            remove_event_from_store(uid)
+        if uid not in uidlist : #not in ics
+            remove_event_from_store(uid) #remove
 
     logging.info("%d events read and created/updated", counter)
     return(counter)
@@ -195,11 +190,10 @@ def get_events_from_store():
     """Read events from store"""
     storepath = UmrConf.get_path('store')
     events = {}
-    for f in os.listdir(storepath):
+    for f in os.listdir(storepath): #list files in store
         fpath = os.path.join(storepath, f)
-        if os.path.isfile(fpath):
+        if os.path.isfile(fpath): #this is a file
             data = get_data_from_file(fpath)
-            #Do not filter here
             events[data['uid']] = data
     return(events)
 
