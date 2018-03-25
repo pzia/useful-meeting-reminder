@@ -1,10 +1,14 @@
-#TODO :
-* Focus : Blacklisting
-    * by title (regexp)
-    * by uid
+# TODO
 
-#IDEAS
-* Architecture : check_mail in status.json to ajust frequency 
+## FOCUS
+
+* Blacklisting
+  * by title (regexp)
+  * by uid
+
+## IDEAS
+
+* Architecture : check_mail in status.json to ajust frequency
   * once per hour
   * every 2 minute if activity during last fifteen minutes
 * Architecture : cleverer loading of ics (mtime change of the file)
@@ -17,8 +21,8 @@
 * Focus : reply with html from markdown
 * Focus : append (and not only replace)
 
-#Elsewhere :
+## Elsewhere
+
 * Efficiency : match meetings with work inbox
   * detect event in mails
   * propose for inclusion in calendar
-
