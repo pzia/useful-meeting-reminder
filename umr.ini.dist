@@ -12,7 +12,7 @@ portsmtp = 465
 username = assistant.foobar@gmail.com
 password = foobar
 sender = %(username)s
-sendername = Assistant
+sendername = My Assistant
 reminded = foobar@gmail.com
 
 [Files]
