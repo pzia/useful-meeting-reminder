@@ -105,7 +105,7 @@ def sendSomeMails(mailList):
     csmtp = connectSmtp()
     sender = gconfig.get("Mail", 'sender')
     sendername = gconfig.get("Mail", 'sendername')
-    fromtext = "%s <%s>" % (sendername, sender)
+    fromtext = '"%s" <%s>' % (sendername, sender)
     #on envoie !
     for msg in mailList:
         logging.info("Sending message to %s", msg['To'])
