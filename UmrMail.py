@@ -169,7 +169,7 @@ def process_mails():
             'uid' : uid
         }
         UmrIcal.update_store_with_data(data) #update in store
-        UmrIcal.send_event_from_uid(uid) #send from store
+        UmrIcal.send_event_from_uid(uid, prefix="PROCESSED") #send from store
     disconnect() #disconnect close the pop connection and mark messages as read.
 
 if __name__ == '__main__':
