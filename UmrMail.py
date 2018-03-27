@@ -9,7 +9,7 @@ import poplib, email, smtplib
 #parse and compose
 import email.parser, email.policy, email.mime.text
 import re
-import html2text
+import html2text, html
 #sys
 import logging
 import sys
@@ -121,6 +121,7 @@ def get_content_as_text(emailmessage):
         text = html2text.html2text(text)
     else : #go on with text
         text = part.get_payload(decode=True).decode('UTF-8')
+        text = html.unescape(text)
     return(text.strip())
 
 def extract_content(text):
