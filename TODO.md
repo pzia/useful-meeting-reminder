@@ -13,6 +13,7 @@
   * by uid
 * reply with html from markdown
 * append (and not only replace)
+* Remind past event when TODO or FIXME
 
 ## ARCHITECTURE
 
