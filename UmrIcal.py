@@ -94,8 +94,13 @@ def body_plan_from_data(data) :
 
 def subject_from_data(data):
     """Make Title from dict"""
-    dtiso = datetime.utcfromtimestamp(int(data['dtstart'])).strftime('%d-%m-%Y à %H:%M')
-    #FIXME : eventually, take it from config file
+    time_to_meeting = int(data['dtstart']) - ts_from_datetime()
+    if time_to_meeting < 3600*24*7 and time_to_meeting > 0 :
+        date_format = '%A %d/%m à %H:%M'
+    else :
+        date_format = '%d/%m à %H:%M'
+    dtiso = datetime.utcfromtimestamp(int(data['dtstart'])).strftime(date_format)
+    #FIXME : optionnaly, take it from config file
     return("%s - %s - UMR/%s" % (data['summary'], dtiso, data['uid']) )
 
 def send_event_from_uid(uid, prefix = None):
