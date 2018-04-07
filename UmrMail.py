@@ -127,13 +127,18 @@ def get_content_as_text(emailmessage):
 def extract_content(text):
     """Extract useful content between enclosers ===.*==="""
     #FIXME : === enclosers could be in conf ?
-    #TODO : extract additions ? (+++)
+    added = "" #extract additions :::
+    for l in text.split("\n") :
+        m = re.match(r':::\s*(.*)', l.strip())
+        if m is not None :
+            added = "%s\n%s" % (added, m.groups()[0])
+
     m = re.search(r'===(.*)===', text, re.MULTILINE|re.DOTALL)
     if m : #found something (event "" is OK)
         ret = m.groups()[0]
         logging.debug("Found content")
-        return(filter_reply_chars(ret))
-    else : #no enclosers
+        return(filter_reply_chars(ret+"\n"+added))
+    else :
         return(None)
 
 def filter_reply_chars(text):
