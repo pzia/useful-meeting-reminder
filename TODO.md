@@ -12,7 +12,6 @@
   * by title (regexp)
   * by uid
 * reply with html from markdown
-* append with ::: even if there is no main (===.*===)
 * Remind past event when TODO or FIXME
 
 ## ARCHITECTURE

@@ -127,19 +127,23 @@ def get_content_as_text(emailmessage):
 def extract_content(text):
     """Extract useful content between enclosers ===.*==="""
     #FIXME : === enclosers could be in conf ?
-    added = "" #extract additions :::
-    for l in text.split("\n") :
+    added = None
+    for l in text.split("\n") : #extract additions :::
         m = re.match(r':::\s*(.*)', l.strip())
         if m is not None :
-            added = "%s\n%s" % (added, m.groups()[0])
+            if added is not None :
+                added = "%s\n%s" % (added, m.groups()[0])
+            else :
+                added = m.groups()[0]
 
     m = re.search(r'===(.*)===', text, re.MULTILINE|re.DOTALL)
     if m : #found something (event "" is OK)
         ret = m.groups()[0]
         logging.debug("Found content")
-        return(filter_reply_chars(ret+"\n--\n"+added))
+        main = filter_reply_chars(ret)
     else :
-        return(None)
+        main = None
+    return (main, added)
 
 def filter_reply_chars(text):
     """filter reply characters (>) and strip empty lines"""
@@ -166,9 +170,14 @@ def process_mails():
     for sender, message in l : #for each sender,message
         logging.debug("Processing mail from %s", sender)
         uid = extract_uid(message['Subject'])
-        text = extract_content(get_content_as_text(message))
-        if uid is None or text is None : #Nothing to do with this
-            continue
+        text, added = extract_content(get_content_as_text(message))
+        if uid is None or (text is None and added is None):
+            continue #Nothing to do
+        if text is None :
+            stored = UmrIcal.get_data_from_store(uid) #get data
+            text = stored['meetingplan']
+        if added is not None :
+            text += "\n--\n" + added
         data = { #prepare update
             'meetingplan': text,
             'updated': UmrIcal.ts_from_datetime(),
