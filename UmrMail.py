@@ -137,7 +137,7 @@ def extract_content(text):
     if m : #found something (event "" is OK)
         ret = m.groups()[0]
         logging.debug("Found content")
-        return(filter_reply_chars(ret+"\n"+added))
+        return(filter_reply_chars(ret+"\n--\n"+added))
     else :
         return(None)
 
