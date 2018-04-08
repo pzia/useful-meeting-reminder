@@ -210,7 +210,7 @@ def remove_event_from_store(uid):
         os.remove(fpath) #FIXME : Shall copy in backup dir ?
         logging.debug("%s removed", uid)
     except :
-        pass
+        logging.debug("Could not remove %s", uid)
 
 def remind_event_from_store(uid):
     """Remind event - and update data store"""
@@ -227,26 +227,6 @@ def to_be_reminded(data):
     halfway = float(max(updated, reminded) + data['dtstart'])/2.0
     now = ts_from_datetime()
     return(now > halfway and now < data['dtstart'])
-
-def to_be_removed(data, oldest = 7):
-    #FIXME : useless ?
-    """Check if event has to be removed"""
-    if 'dtstart' not in data :
-        return True
-    old = ts_from_datetime()-oldest*24*3600
-    return(data['dtstart'] < old)
-
-def purge_events(events):
-    #FIXME : useless ?
-    """Purge events if necessary"""
-    logging.info("Purge events")
-    purged = []
-    for uid in events :
-        data = events[uid]
-        if to_be_removed(data):
-            remove_event_from_store(uid)
-            purged.append(data)
-    return(purged)
 
 def remind_events(events):
     """Remind events if necessary"""

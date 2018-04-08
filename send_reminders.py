@@ -2,9 +2,8 @@
 # -*- coding: utf-8 -*-
 
 #Umr imports
-from UmrConf import gconfig
 import UmrIcal
 
 if __name__ == '__main__':
-    """Connect, fetch messages, and answer with initial content"""
+    """Read store, and remind meetings"""
     UmrIcal.send_reminders()

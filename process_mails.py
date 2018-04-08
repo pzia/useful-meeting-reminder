@@ -5,5 +5,5 @@
 import UmrMail
 
 if __name__ == '__main__':
-    """Connect, fetch messages, and answer with initial content"""
+    """Connect, fetch messages, scrap, update store, and answer with updated content"""
     UmrMail.process_mails()

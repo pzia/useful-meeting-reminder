@@ -21,6 +21,8 @@
   * every 2 minute if activity during last fifteen minutes
 * cleverer loading of ics (mtime change of the file)
 * more conf
+  * enclosers
+  * appenders
 * Modular storage (standardfile, sqlite, reddis)
 * Testability : dry_run mode (see keep_my_datas)
 

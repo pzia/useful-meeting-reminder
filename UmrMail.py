@@ -173,7 +173,7 @@ def process_mails():
         text, added = extract_content(get_content_as_text(message))
         if uid is None or (text is None and added is None):
             continue #Nothing to do
-        if added is not None : #discard text
+        if added is not None : #append with added and discard main text
             stored = UmrIcal.get_data_from_store(uid) #get data
             text = stored['meetingplan']
             text += "\n--\n" + added
