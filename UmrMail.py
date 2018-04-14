@@ -175,8 +175,11 @@ def process_mails():
             continue #Nothing to do
         if added is not None : #append with added and discard main text
             stored = UmrIcal.get_data_from_store(uid) #get data
-            text = stored['meetingplan']
-            text += "\n--\n" + added
+            if 'meetingplan' in stored :
+                text = stored['meetingplan']
+                text += "\n--\n" + added
+            else :
+                text = added
         data = { #prepare update
             'meetingplan': text,
             'updated': UmrIcal.ts_from_datetime(),
