@@ -11,6 +11,11 @@ import os.path
 import logging
 logging.basicConfig(filename=os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'umr.log'),level=logging.DEBUG)
 
+#Set locale
+#FIXME : force French, should be in conf ?
+import locale
+locale.setlocale(locale.LC_TIME, 'fr_FR')
+
 #Initialisation to None
 gconfig = None
 
