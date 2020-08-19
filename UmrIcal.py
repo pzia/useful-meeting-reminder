@@ -45,7 +45,11 @@ def get_events(pathname, maxfuture = 60, limit = 200):
 
             if component.has_key('rrule'): #event with repeat
                 rule = component.get('rrule')
-                until = rule['UNTIL'][0]
+                try :
+                    until = rule['UNTIL'][0]
+                except :
+                    logging.info("rrule without UNTIL in %s %s", pathname, dtstart)
+                    continue
                 ruleset = rrule.rruleset()
                 ruleset.rrule(rrule.rrulestr(rule.to_ical().decode('UTF-8'), dtstart=dtstart.dt))
                 exdate = component.get('EXDATE')
